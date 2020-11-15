@@ -9,7 +9,7 @@
 import UIKit
 
 class ToDoListViewController: UITableViewController {
-
+    
     var itemArray = [Item]()
     let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
     
@@ -34,20 +34,20 @@ class ToDoListViewController: UITableViewController {
         
         cell.textLabel?.text = item.title
         
-//        The following line is a Ternary Operator. It sets the cell's accessoryType depending on whether          the item.done is true. If it is, set it to .checkmark and if it isn't true then set it to .none.
+        //        The following line is a Ternary Operator. It sets the cell's accessoryType depending on whether          the item.done is true. If it is, set it to .checkmark and if it isn't true then set it to .none.
         
-//        Overview:
-//        value = condition ? valueIfTrue : valueIfFalse
-
+        //        Overview:
+        //        value = condition ? valueIfTrue : valueIfFalse
+        
         cell.accessoryType = item.done ? .checkmark : .none
         
-//        The line above is a shorthand version of the code below:
+        //        The line above is a shorthand version of the code below:
         
-//        if item.done == true {
-//            cell.accessoryType = .checkmark
-//        } else {
-//            cell.accessoryType = .none
-//        }
+        //        if item.done == true {
+        //            cell.accessoryType = .checkmark
+        //        } else {
+        //            cell.accessoryType = .none
+        //        }
         
         return cell
     }
@@ -55,9 +55,9 @@ class ToDoListViewController: UITableViewController {
     //MARK: - TableView DataSource Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        print(itemArray[indexPath.row])
+        //        print(itemArray[indexPath.row])
         
-//        The below statement looks for a checkmark. If there is none, one is added, and vice versa
+        //        The below statement looks for a checkmark. If there is none, one is added, and vice versa
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
         
@@ -74,7 +74,7 @@ class ToDoListViewController: UITableViewController {
         let alert = UIAlertController(title: "Add New Todoey Item", message: "", preferredStyle: .alert)
         
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
-//            what will happen once the user clicks the Add Item button on our UIAlert
+            //            what will happen once the user clicks the Add Item button on our UIAlert
             
             let newItem = Item()
             newItem.title = textField.text!
@@ -97,9 +97,9 @@ class ToDoListViewController: UITableViewController {
         
     }
     
-//    The saveItems & loadItems below are encoding and decoding the data (think of the "music > vinyl record > music" analogy in the Udemy course.
+    //    The saveItems & loadItems below are encoding and decoding the data (think of the "music > vinyl record > music" analogy in the Udemy course.
     
-//    The saveItems function below is encoding one type of data (an array of custom objects) into data that can be written into a .plist file. Explanation continued in the loadItems function below....
+    //    The saveItems function below is encoding one type of data (an array of custom objects) into data that can be written into a .plist file. Explanation continued in the loadItems function below....
     func saveItems() {
         let encoder = PropertyListEncoder()
         
@@ -113,17 +113,17 @@ class ToDoListViewController: UITableViewController {
         self.tableView.reloadData()
     }
     
-//    Explanation continued...
-//    When the data in the .plist file is required, a plist decoder is used (PropertyListDecoder) to take out that data in the form of an array of items. If for example you wanted to add additional categories to the checklist, you should create additional .plist files. This avoids one large .plist file and reduces loading time when adding/removing items.
+    //    Explanation continued...
+    //    When the data in the .plist file is required, a plist decoder is used (PropertyListDecoder) to take out that data in the form of an array of items. If for example you wanted to add additional categories to the checklist, you should create additional .plist files. This avoids one large .plist file and reduces loading time when adding/removing items.
     func loadItems() {
         if let data = try? Data(contentsOf: dataFilePath!) {
             let decoder = PropertyListDecoder()
             do {
-            itemArray = try decoder.decode([Item].self, from: data)
+                itemArray = try decoder.decode([Item].self, from: data)
             } catch {
                 print("Error decoding item array, \(error)")
             }
-            }
+        }
     }
     
 }
