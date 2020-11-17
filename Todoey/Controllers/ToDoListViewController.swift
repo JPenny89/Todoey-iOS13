@@ -7,16 +7,18 @@
 //
 
 import UIKit
+import CoreData
 
 class ToDoListViewController: UITableViewController {
     
     var itemArray = [Item]()
-    let dataFilePath = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first?.appendingPathComponent("Items.plist")
+    
+    let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(dataFilePath)
+        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
         
         loadItems()
         
@@ -57,6 +59,9 @@ class ToDoListViewController: UITableViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         //        print(itemArray[indexPath.row])
         
+//        context.delete(itemArray[indexPath.row])
+//        itemArray.remove(at: indexPath.row)
+        
         //        The below statement looks for a checkmark. If there is none, one is added, and vice versa
         
         itemArray[indexPath.row].done = !itemArray[indexPath.row].done
@@ -76,9 +81,9 @@ class ToDoListViewController: UITableViewController {
         let action = UIAlertAction(title: "Add Item", style: .default) { (action) in
             //            what will happen once the user clicks the Add Item button on our UIAlert
             
-            let newItem = Item()
+            let newItem = Item(context: self.context)
             newItem.title = textField.text!
-            
+            newItem.done = false
             self.itemArray.append(newItem)
             
             self.saveItems()
@@ -97,17 +102,30 @@ class ToDoListViewController: UITableViewController {
         
     }
     
+    //MARK: - Model Manipulation Methods
+    
     //    The saveItems & loadItems below are encoding and decoding the data (think of the "music > vinyl record > music" analogy in the Udemy course.
     
     //    The saveItems function below is encoding one type of data (an array of custom objects) into data that can be written into a .plist file. Explanation continued in the loadItems function below....
+//    func saveItems() {
+//        let encoder = PropertyListEncoder()
+//
+//        do {
+//            let data = try encoder.encode(itemArray)
+//            try data.write(to: dataFilePath!)
+//        } catch {
+//            print("Error encoding item array, \(error)")
+//        }
+//
+//        self.tableView.reloadData()
+//    }
+    
     func saveItems() {
-        let encoder = PropertyListEncoder()
         
         do {
-            let data = try encoder.encode(itemArray)
-            try data.write(to: dataFilePath!)
+            try context.save()
         } catch {
-            print("Error encoding item array, \(error)")
+            print("Error saving context \(error)")
         }
         
         self.tableView.reloadData()
@@ -115,14 +133,13 @@ class ToDoListViewController: UITableViewController {
     
     //    Explanation continued...
     //    When the data in the .plist file is required, a plist decoder is used (PropertyListDecoder) to take out that data in the form of an array of items. If for example you wanted to add additional categories to the checklist, you should create additional .plist files. This avoids one large .plist file and reduces loading time when adding/removing items.
+    
     func loadItems() {
-        if let data = try? Data(contentsOf: dataFilePath!) {
-            let decoder = PropertyListDecoder()
-            do {
-                itemArray = try decoder.decode([Item].self, from: data)
-            } catch {
-                print("Error decoding item array, \(error)")
-            }
+        let request : NSFetchRequest<Item> = Item.fetchRequest()
+        do {
+            itemArray = try context.fetch(request)
+        } catch {
+            print("Error fetching data from context \(error)")
         }
     }
     
