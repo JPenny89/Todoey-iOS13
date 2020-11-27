@@ -62,16 +62,18 @@ class ToDoListViewController: UITableViewController {
     //MARK: - TableView DataSource Methods
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //        print(itemArray[indexPath.row])
         
-//        context.delete(itemArray[indexPath.row])
-//        itemArray.remove(at: indexPath.row)
+        if let item = todoItems?[indexPath.row] {
+            do {
+                try realm.write {
+                    item.done = !item.done
+                }
+            } catch {
+                print("Error saving done status, \(error)")
+            }
+        }
         
-        //        The below statement looks for a checkmark. If there is none, one is added, and vice versa
-        
-//        todoItems?[indexPath.row].done = !(todoItems[indexPath.row].done)
-//
-//        saveItems()
+        tableView.reloadData()
         
         tableView.deselectRow(at: indexPath, animated: true)
     }
@@ -91,6 +93,7 @@ class ToDoListViewController: UITableViewController {
                     try self.realm.write {
                         let newItem = Item()
                         newItem.title = textField.text!
+                        newItem.dateCreated = Date()
                         currentCategory.items.append(newItem)
                     }
                 } catch {
@@ -119,18 +122,18 @@ class ToDoListViewController: UITableViewController {
     //    The saveItems & loadItems below are encoding and decoding the data (think of the "music > vinyl record > music" analogy in the Udemy course.
     
     //    The saveItems function below is encoding one type of data (an array of custom objects) into data that can be written into a .plist file. Explanation continued in the loadItems function below....
-//    func saveItems() {
-//        let encoder = PropertyListEncoder()
-//
-//        do {
-//            let data = try encoder.encode(itemArray)
-//            try data.write(to: dataFilePath!)
-//        } catch {
-//            print("Error encoding item array, \(error)")
-//        }
-//
-//        self.tableView.reloadData()
-//    }
+    //    func saveItems() {
+    //        let encoder = PropertyListEncoder()
+    //
+    //        do {
+    //            let data = try encoder.encode(itemArray)
+    //            try data.write(to: dataFilePath!)
+    //        } catch {
+    //            print("Error encoding item array, \(error)")
+    //        }
+    //
+    //        self.tableView.reloadData()
+    //    }
     
     //    Explanation continued...
     //    When the data in the .plist file is required, a plist decoder is used (PropertyListDecoder) to take out that data in the form of an array of items. If for example you wanted to add additional categories to the checklist, you should create additional .plist files. This avoids one large .plist file and reduces loading time when adding/removing items.
@@ -138,35 +141,29 @@ class ToDoListViewController: UITableViewController {
     func loadItems() {
         
         todoItems = selectedCategory?.items.sorted(byKeyPath: "title", ascending: true)
-
+        
         tableView.reloadData()
     }
 }
 
 //MARK: - Search bar methods
 
-//extension ToDoListViewController: UISearchBarDelegate {
-//
-//    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
-//
-//        let request : NSFetchRequest<Item> = Item.fetchRequest()
-//
-//        let predicate = NSPredicate(format: "title CONTAINS[cd] %@", searchBar.text!)
-//
-//        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-//
-//        loadItems(with: request, predicate: predicate)
-//
-//    }
-//
-//    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-//        if searchBar.text?.count == 0 {
-//            loadItems()
-//
-//            DispatchQueue.main.async {
-//                searchBar.resignFirstResponder()
-//            }
-//        }
-//    }
-//}
+extension ToDoListViewController: UISearchBarDelegate {
+
+    func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
+        todoItems = todoItems?.filter("title CONTAINS[cd] %@", searchBar.text!).sorted(byKeyPath: "title", ascending: true)
+        
+        tableView.reloadData()
+    }
+
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchBar.text?.count == 0 {
+            loadItems()
+
+            DispatchQueue.main.async {
+                searchBar.resignFirstResponder()
+            }
+        }
+    }
+}
 
