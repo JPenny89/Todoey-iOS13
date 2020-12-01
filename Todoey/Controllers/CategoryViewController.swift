@@ -15,7 +15,7 @@
 
 import UIKit
 import RealmSwift
-import CyaneaOctopus
+import ChameleonFramework
 
 class CategoryViewController: SwipeTableViewController {
     
@@ -46,7 +46,7 @@ class CategoryViewController: SwipeTableViewController {
         
         cell.textLabel?.text = categoryArray?[indexPath.row].name ?? "No categories added yet"
         
-        cell.backgroundColor = UIColor.randomFlatColor()
+        cell.backgroundColor = UIColor(hexString: categoryArray?[indexPath.row].colour ?? "1D9BF6")
         
         return cell
     }
@@ -120,6 +120,7 @@ class CategoryViewController: SwipeTableViewController {
             
             let newCategory = Category()
             newCategory.name = textField.text!
+            newCategory.colour = UIColor.randomFlat().hexValue()
             
             self.save(category: newCategory)
             
