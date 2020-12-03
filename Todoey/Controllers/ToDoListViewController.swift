@@ -14,6 +14,7 @@ class ToDoListViewController: SwipeTableViewController {
     
     var todoItems: Results<Item>?
     let realm = try! Realm()
+    @IBOutlet weak var searchBar: UISearchBar!
     
     var selectedCategory : Category? {
         didSet{
@@ -24,10 +25,32 @@ class ToDoListViewController: SwipeTableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(FileManager.default.urls(for: .documentDirectory, in: .userDomainMask))
-        
         tableView.separatorStyle = .none
         
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        
+        title = selectedCategory!.name
+        
+        //        selectedCategory? is an optional, but UIColor(hexstring:) requires a non-optional string to work. Rather than force-unwrapping (!), a safer way is to wrap inside an if let statement using (optional binding)....
+                if let colourHex = selectedCategory?.colour {
+                    
+                    guard let navBar = navigationController?.navigationBar else {fatalError("Navigation controller does not exist.")}
+                    
+                    if let navBarColour = UIColor(hexString: colourHex) {
+                        
+                        navBar.backgroundColor = navBarColour
+                        
+                        navBar.tintColor = ContrastColorOf(navBarColour, returnFlat: true)
+                        
+                        navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColour, returnFlat: true)]
+                        
+                        searchBar.barTintColor = navBarColour
+                        searchBar.searchTextField.backgroundColor = .white
+                    }
+                    
+                }
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
